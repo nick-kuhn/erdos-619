@@ -52,8 +52,10 @@ fi
 
 SHIM_DIR="$ROOT/.tools/bin"
 mkdir -p "$SHIM_DIR"
-ln -sfn "$LANDRUN_BIN" "$SHIM_DIR/landrun"
-ln -sfn "$COMPARATOR_LEAN4EXPORT" "$SHIM_DIR/lean4export"
 
+ln -sfn "$(readlink -f "$LANDRUN_BIN")" "$SHIM_DIR/landrun"
+ln -sfn "$(readlink -f "$COMPARATOR_LEAN4EXPORT")" "$SHIM_DIR/lean4export"
+
+COMPARATOR_BIN="$(readlink -f "$COMPARATOR_BIN")"
 cd "$ROOT"
 PATH="$SHIM_DIR:$PATH" exec lake env "$COMPARATOR_BIN" "$CONFIG"
