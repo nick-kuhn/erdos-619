@@ -4,7 +4,7 @@ This repository contains a Lean/mathlib formalization of the negation of the ori
 
 ## Main Files
 
-- `Solution.md` : Solution sketch by Claude Fable. 
+- `sketch.md` : Solution sketch by Claude Fable. 
 - `Erdos/Basic.lean`: trusted formal statement.
 - `Challenge.lean`: trusted comparator challenge theorem, intentionally proved by `sorry`.
 - `Solution.lean`: submitted proof and root-level comparator theorem.
