@@ -1,6 +1,6 @@
 # Erdős Problem 619 Lean Formalization
 
-This repository contains a Lean/mathlib formalization of the negation of the original Erdős Problem 619 conjecture, together with a comparator entry point for independently checking the submitted proof.
+This repository contains a Lean/mathlib formalization of the negation of the original Erdős Problem 619 conjecture, together with a comparator-checked proof.
 
 ## Main Files
 
@@ -9,6 +9,7 @@ This repository contains a Lean/mathlib formalization of the negation of the ori
 - `Solution.lean`: submitted proof and root-level comparator theorem.
 - `comparator/erdos_619.json`: comparator configuration.
 - `scripts/check-erdos-619-solution.sh`: comparator runner.
+- `VERIFICATION.md`: recorded verification commands and outputs.
 
 The original positive conjecture is:
 
@@ -35,7 +36,7 @@ lake build Challenge Solution
 
 The build may emit linter/style warnings from `Solution.lean`; those are not proof holes.
 
-## Comparator
+## Comparator Verification
 
 Comparator checks that `Solution.erdos_619_solution` has the same statement as the trusted theorem in `Challenge.lean`, kernel-checks, and uses only the permitted axioms listed in `comparator/erdos_619.json`:
 
@@ -43,7 +44,13 @@ Comparator checks that `Solution.erdos_619_solution` has the same statement as t
 ["propext", "Quot.sound", "Classical.choice"]
 ```
 
-Set up comparator matching Lean `v4.28.0`:
+The verification recorded in `VERIFICATION.md` used:
+
+- Lean `v4.28.0`
+- comparator tag `v4.28.0`
+- landrun module `github.com/zouuup/landrun v0.1.16-0.20251001204025-5ed4a3db3a4a`
+
+Set up comparator:
 
 ```sh
 git clone https://github.com/leanprover/comparator .tools/comparator
@@ -51,33 +58,29 @@ git -C .tools/comparator checkout v4.28.0
 (cd .tools/comparator && lake build lean4export comparator)
 ```
 
-For a local non-adversarial smoke test:
+Set up a landrun binary from the verified upstream revision:
 
 ```sh
-COMPARATOR_DEV_FAKE_LANDRUN=1 ./scripts/check-erdos-619-solution.sh
+mkdir -p /tmp/landrun-main-bin
+GOBIN=/tmp/landrun-main-bin \
+  go install github.com/zouuup/landrun/cmd/landrun@5ed4a3db3a4a
 ```
 
-For the actual release check, use real `landrun`:
+Then run:
 
 ```sh
-COMPARATOR_LANDRUN=/path/to/landrun ./scripts/check-erdos-619-solution.sh
-```
-
-If comparator is built outside this repository, pass explicit paths:
-
-```sh
-COMPARATOR_BIN=/path/to/comparator \
-COMPARATOR_LEAN4EXPORT=/path/to/lean4export \
-COMPARATOR_LANDRUN=/path/to/landrun \
+COMPARATOR_BIN=.tools/comparator/.lake/build/bin/comparator \
+COMPARATOR_LEAN4EXPORT=.tools/comparator/.lake/packages/lean4export/.lake/build/bin/lean4export \
+COMPARATOR_LANDRUN=/tmp/landrun-main-bin/landrun \
 ./scripts/check-erdos-619-solution.sh
 ```
 
-## Release Checklist
+Expected final output:
 
-Before pushing a release tag:
+```text
+Running Lean default kernel on solution.
+Lean default kernel accepts the solution
+Your solution is okay!
+```
 
-1. Run `lake exe cache get` from a clean checkout.
-2. Run `lake build Challenge Solution`.
-3. Run comparator with real `landrun`.
-4. Record the exact commit hash, toolchain, comparator tag, command, and output in `VERIFICATION.md`.
-5. Commit and tag the verified state.
+Note: the published landrun `v0.1.15` release failed on this verification machine with `permission denied` for comparator's direct `-ldd -add-exec` invocation. The upstream revision above passed the direct landrun smoke test and the full comparator run without any wrapper or change to comparator's sandbox arguments.

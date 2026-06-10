@@ -2,52 +2,63 @@
 
 ## Repository State
 
-- Repo path checked: `/home/nick/erdos-619`
-- Commit hash: pending commit
-- Tag: pending release tag
-- Date checked: 2026-06-10 UTC
+- Repo URL: `https://github.com/nick-kuhn/erdos-619`
+- Commit checked before this verification update: `86da4a0`
+- Verification date: `2026-06-10 UTC`
+- Release tag: `erdos-619-solution-v1` after this verification commit
 
 ## Toolchain
 
 - Lean toolchain: `leanprover/lean4:v4.28.0`
 - mathlib revision: `8f9d9cff6bd728b17a24e163c9402775d9e6a365`
 - comparator tag: `v4.28.0`
+- comparator commit: `7a0cae3df7a0200ff330c82420b8d88a51c9cac7`
+- landrun module: `github.com/zouuup/landrun v0.1.16-0.20251001204025-5ed4a3db3a4a`
+- landrun binary used: `/tmp/landrun-main-bin/landrun`
 - permitted axioms: `propext`, `Quot.sound`, `Classical.choice`
 
-## Commands Run Locally
+## Landrun Smoke Test
+
+The published landrun `v0.1.15` release failed on this machine with `permission denied` under comparator's direct `-ldd -add-exec` invocation. The upstream revision recorded above passed the direct smoke test:
+
+```sh
+/tmp/landrun-main-bin/landrun --best-effort --ro / --rw /dev -ldd -add-exec /usr/bin/echo hello
+```
+
+Output:
+
+```text
+hello
+```
+
+No wrapper was used for the final comparator run.
+
+## Commands Run
 
 ```sh
 lake exe cache get
 lake build Challenge Solution
+
 COMPARATOR_BIN=/home/nick/erdos/.tools/comparator/.lake/build/bin/comparator \
 COMPARATOR_LEAN4EXPORT=/home/nick/erdos/.tools/comparator/.lake/packages/lean4export/.lake/build/bin/lean4export \
-COMPARATOR_DEV_FAKE_LANDRUN=1 \
+COMPARATOR_LANDRUN=/tmp/landrun-main-bin/landrun \
 ./scripts/check-erdos-619-solution.sh
 ```
 
-## Local Results
+## Results
 
 - `lake exe cache get`: passed
 - `lake build Challenge Solution`: passed with linter/style warnings only
-- comparator dev smoke test: passed
+- comparator with real landrun: passed
 
-Comparator terminal result:
+Comparator final output:
 
 ```text
+Exporting #[erdos_619_solution, propext, Quot.sound, Classical.choice, Nat.add, Nat.sub, Nat.mul, Nat.pow, Nat.gcd, Nat.div, Nat.mod, Nat.beq, Nat.ble, Nat.land, Nat.lor, Nat.xor, Nat.shiftLeft, Nat.shiftRight, String.ofList] from Solution
 Running Lean default kernel on solution.
 Lean default kernel accepts the solution
 Your solution is okay!
 ```
-
-## Release Check Still Needed
-
-For the final public/release check, run comparator with real `landrun` from a clean checkout:
-
-```sh
-COMPARATOR_LANDRUN=/path/to/landrun ./scripts/check-erdos-619-solution.sh
-```
-
-Then fill in the final commit hash, tag, landrun path/version, and paste the real-landrun comparator output here before tagging the release.
 
 ## Notes
 
