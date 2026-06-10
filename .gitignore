@@ -1,0 +1,9 @@
+/.lake
+/.tools
+*.olean
+*.ilean
+*.c
+*.o
+*.so
+.DS_Store
+*.swp
