@@ -63,3 +63,61 @@ Your solution is okay!
 ## Notes
 
 `Challenge.lean` intentionally uses `sorry`; it is the trusted challenge statement. Comparator rejects untrusted proof holes in `Solution.lean` by checking for unpermitted axioms such as `sorryAx`.
+
+---
+
+# Verification Record: formal-conjectures form added (2026-06-12)
+
+## Changes verified
+
+- `Erdos/FC.lean`: vendored trusted copy of the statement from
+  google-deepmind/formal-conjectures, `FormalConjectures/ErdosProblems/619.lean`
+  ([PR #4255](https://github.com/google-deepmind/formal-conjectures/pull/4255),
+  branch `erdos-619` of the `nick-kuhn` fork, commit
+  `f1f486fd5826d5da1e6bc0c8cadaec404d0898ac`), in its
+  solved form with the transparent `answer(False)` annotation written as `False`.
+- `Challenge.lean`: second trusted challenge theorem `erdos_619_fc_solution`.
+- `Solution.lean`: bridge lemmas (`addedEdgeCount_eq_ncard`, `IsHR.minNewEdges_eq`,
+  `erdos_619_conjecture_of_fc`) and root-level `erdos_619_fc_solution`.
+- `comparator/erdos_619.json`: `theorem_names` now lists both
+  `erdos_619_solution` and `erdos_619_fc_solution`.
+- `scripts/AxiomCheck.lean`: axiom audit extended to `erdos_619_fc_solution`.
+
+## Toolchain
+
+Unchanged from the record above (Lean `leanprover/lean4:v4.28.0`, comparator tag
+`v4.28.0`, landrun binary `/tmp/landrun-main-bin/landrun`).
+
+## Commands Run
+
+```sh
+lake build Erdos Challenge Solution
+lake env lean scripts/AxiomCheck.lean
+COMPARATOR_LANDRUN=/tmp/landrun-main-bin/landrun ./scripts/check-erdos-619-solution.sh
+```
+
+## Results
+
+- `lake build`: passed (pre-existing linter/style warnings only; `sorry` warnings
+  come from the two trusted challenge theorems).
+- axiom audit: passed for both theorems
+  (`propext`, `Classical.choice`, `Quot.sound`).
+- comparator with real landrun: passed.
+
+Comparator final output:
+
+```text
+Exporting #[erdos_619_solution, erdos_619_fc_solution, propext, Quot.sound, Classical.choice, Nat.add, Nat.sub, Nat.mul, Nat.pow, Nat.gcd, Nat.div, Nat.mod, Nat.beq, Nat.ble, Nat.land, Nat.lor, Nat.xor, Nat.shiftLeft, Nat.shiftRight, String.ofList] from Solution
+Running Lean default kernel on solution.
+Lean default kernel accepts the solution
+Your solution is okay!
+```
+
+## Notes
+
+The formal-conjectures statement vendored in `Erdos/FC.lean` is pinned to an
+**unmerged** branch of a formal-conjectures fork. If review of the upstream PR
+changes the statement, `Erdos/FC.lean` and the bridge must be updated and this
+verification re-run. Once the PR is merged, replace the vendored copy with a Lake
+dependency on formal-conjectures pinned at the merge commit (this requires moving
+this repository to the formal-conjectures toolchain, currently Lean v4.27.0).

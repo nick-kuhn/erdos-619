@@ -6,8 +6,11 @@ This repository contains a Lean/mathlib formalization of the negation of the ori
 
 - `sketch.md` : Solution sketch by Claude Fable. 
 - `Erdos/Basic.lean`: trusted formal statement.
-- `Challenge.lean`: trusted comparator challenge theorem, intentionally proved by `sorry`.
-- `Solution.lean`: submitted proof and root-level comparator theorem.
+- `Erdos/FC.lean`: trusted vendored copy of the google-deepmind/formal-conjectures
+  statement of the problem (solved form), see the file header for provenance.
+- `Challenge.lean`: trusted comparator challenge theorems, intentionally proved by `sorry`.
+- `Solution.lean`: submitted proof, root-level comparator theorems, and the bridge from
+  the `Erdos/Basic.lean` form to the formal-conjectures form.
 - `comparator/erdos_619.json`: comparator configuration.
 - `scripts/check-erdos-619-solution.sh`: comparator runner.
 - `VERIFICATION.md`: recorded verification commands and outputs.
