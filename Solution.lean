@@ -5808,3 +5808,64 @@ end Erdos
 /-- Root-level comparator entry point. -/
 theorem erdos_619_solution : Erdos.Problem619.erdos_619 :=
   Erdos.Problem619.erdos_619_solution
+
+/-!
+## Bridge to the formal-conjectures statement
+
+The lemmas below derive the formal-conjectures form of the result (`Erdos/FC.lean`)
+from `erdos_619_solution`. The two gaps between the formulations are:
+
+1. counting added edges as `(H.edgeFinset \ G.edgeFinset).card` versus
+   `(H \ G).edgeSet.ncard` (`addedEdgeCount_eq_ncard`), and
+2. characterising the minimum via the `IsHR` predicate versus `Nat.sInf`
+   (`IsHR.minNewEdges_eq`).
+
+The quantification gap (graphs on `Fin n` versus graphs on an arbitrary finite vertex
+type) needs no lemma: the formal-conjectures conjecture specialises to `Fin n`, which
+is the direction required to refute it.
+-/
+
+namespace Erdos
+namespace Problem619
+
+/-- The two repositories' edge-counting conventions agree. -/
+lemma addedEdgeCount_eq_ncard {n : ℕ} (G H : SimpleGraph (Fin n)) :
+    addedEdgeCount G H = ((H \ G).edgeSet).ncard := by
+  rw [edgeSet_sdiff, ← coe_edgeFinset H, ← coe_edgeFinset G, ← Finset.coe_sdiff,
+    Set.ncard_coe_finset, addedEdgeCount]
+
+/-- If `m` satisfies the `IsHR r G` predicate, then it equals the formal-conjectures
+quantity `Erdos619.minNewEdges r G`. -/
+lemma IsHR.minNewEdges_eq {n r m : ℕ} {G : SimpleGraph (Fin n)} (h : IsHR r G m) :
+    Erdos619.minNewEdges r G = m := by
+  obtain ⟨H, hle, hfree, hdiam, hcount, hmin⟩ := h
+  have hmem : m ∈ {k | ∃ H' : SimpleGraph (Fin n),
+      G ≤ H' ∧ H'.CliqueFree 3 ∧ H'.ediam ≤ (r : ℕ∞) ∧ ((H' \ G).edgeSet).ncard = k} :=
+    ⟨H, hle, hfree, hdiam, by rw [← addedEdgeCount_eq_ncard]; exact hcount⟩
+  refine le_antisymm (Nat.sInf_le hmem) (le_csInf ⟨m, hmem⟩ ?_)
+  rintro k ⟨K, hKle, hKfree, hKdiam, rfl⟩
+  rw [← addedEdgeCount_eq_ncard]
+  exact hmin K hKle hKfree hKdiam
+
+/-- The formal-conjectures conjecture (the right-hand side of
+`Erdos619.erdos_619_solved_statement`) implies this repository's
+`erdos_619_conjecture`: specialise the vertex type to `Fin n` and convert the `IsHR`
+hypothesis via `IsHR.minNewEdges_eq`. -/
+lemma erdos_619_conjecture_of_fc
+    (hfc : ∃ c > (0 : ℝ), ∀ (V : Type) [Fintype V] (G : SimpleGraph V),
+      G.Connected → G.CliqueFree 3 →
+      (Erdos619.minNewEdges 4 G : ℝ) < (1 - c) * Fintype.card V) :
+    erdos_619_conjecture := by
+  obtain ⟨c, hc, hbound⟩ := hfc
+  refine ⟨c, hc, fun n G m hconn hfree hm => ?_⟩
+  have h := hbound (Fin n) G hconn hfree
+  rw [hm.minNewEdges_eq, Fintype.card_fin] at h
+  exact h
+
+end Problem619
+end Erdos
+
+/-- Root-level comparator entry point for the formal-conjectures form of the statement. -/
+theorem erdos_619_fc_solution : Erdos619.erdos_619_solved_statement :=
+  iff_of_false id fun hfc =>
+    erdos_619_solution (Erdos.Problem619.erdos_619_conjecture_of_fc hfc)

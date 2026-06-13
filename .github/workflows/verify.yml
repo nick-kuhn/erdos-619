@@ -1,0 +1,75 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+    tags: ['erdos-619-solution-*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Get mathlib cache
+        run: lake exe cache get
+
+      - name: Build Challenge and Solution
+        run: lake build Challenge Solution
+
+      - name: Redundant axiom audit
+        run: lake env lean scripts/AxiomCheck.lean
+
+      - name: Clone comparator (pinned commit)
+        run: |
+          git clone https://github.com/leanprover/comparator .tools/comparator
+          git -C .tools/comparator checkout 7a0cae3df7a0200ff330c82420b8d88a51c9cac7
+
+      - name: Restore comparator build cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .tools/comparator/.lake
+          key: comparator-7a0cae3-${{ runner.os }}
+
+      - name: Build comparator + lean4export
+        working-directory: .tools/comparator
+        run: lake build lean4export comparator
+
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version: 'stable'
+
+      - name: Build landrun (pinned commit)
+        run: GOBIN="$RUNNER_TEMP/landrun-bin" go install github.com/zouuup/landrun/cmd/landrun@5ed4a3db3a4a
+
+      - name: Landrun smoke test
+        run: |
+          "$RUNNER_TEMP/landrun-bin/landrun" --best-effort --ro / --rw /dev \
+            -ldd -add-exec /usr/bin/echo hello
+
+      - name: Run comparator
+        run: |
+          COMPARATOR_BIN=.tools/comparator/.lake/build/bin/comparator \
+          COMPARATOR_LEAN4EXPORT=.tools/comparator/.lake/packages/lean4export/.lake/build/bin/lean4export \
+          COMPARATOR_LANDRUN="$RUNNER_TEMP/landrun-bin/landrun" \
+          ./scripts/check-erdos-619-solution.sh | tee comparator.log
+          grep -q "Your solution is okay!" comparator.log
+
+      - name: Upload comparator log
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: comparator-log
+          path: comparator.log
+        if: always()
