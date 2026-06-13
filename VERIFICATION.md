@@ -121,3 +121,16 @@ changes the statement, `Erdos/FC.lean` and the bridge must be updated and this
 verification re-run. Once the PR is merged, replace the vendored copy with a Lake
 dependency on formal-conjectures pinned at the merge commit (this requires moving
 this repository to the formal-conjectures toolchain, currently Lean v4.27.0).
+
+---
+
+# CI Checkpoint: verified on `main` (2026-06-13)
+
+The full verification pipeline (build, axiom audit, comparator under landrun) is run by
+GitHub Actions on every push to `main`, every pull request, and every
+`erdos-619-solution-*` tag (`.github/workflows/verify.yml`, actions pinned by SHA).
+
+- CI-verified `main` commit: `d74795fed31956481469c2e18a5dc1b906c56902`
+- Workflow run: https://github.com/nick-kuhn/erdos-619/actions/runs/27453987653
+- Result: success — both `erdos_619_solution` and `erdos_619_fc_solution` kernel-checked
+  by comparator, axiom audit passed (`propext`, `Classical.choice`, `Quot.sound`).
