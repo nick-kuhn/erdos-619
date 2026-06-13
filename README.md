@@ -1,5 +1,7 @@
 # Erdős Problem 619 Lean Formalization
 
+[![verify](https://github.com/nick-kuhn/erdos-619/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/nick-kuhn/erdos-619/actions/workflows/verify.yml)
+
 This repository contains a Lean/mathlib formalization of the negation of the original Erdős Problem 619 conjecture, together with a comparator-checked proof.
 
 ## Main Files
@@ -42,11 +44,13 @@ The build may emit linter/style warnings from `Solution.lean`; those are not pro
 
 ## Comparator Verification
 
-Comparator checks that `Solution.erdos_619_solution` has the same statement as the trusted theorem in `Challenge.lean`, kernel-checks, and uses only the permitted axioms listed in `comparator/erdos_619.json`:
+Comparator checks that the submitted theorems `Solution.erdos_619_solution` and `Solution.erdos_619_fc_solution` have the same statements as the trusted theorems in `Challenge.lean`, kernel-checks them, and confirms they use only the permitted axioms listed in `comparator/erdos_619.json`:
 
 ```json
 ["propext", "Quot.sound", "Classical.choice"]
 ```
+
+CI runs this entire pipeline (build, axiom audit, and comparator under landrun) from pinned sources on every push to `main`, every pull request, and every `erdos-619-solution-*` tag; see the badge above or the Actions tab. Relative paths to the comparator binaries are fine — the runner script canonicalizes them.
 
 The verification recorded in `VERIFICATION.md` used:
 

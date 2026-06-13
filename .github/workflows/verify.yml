@@ -2,7 +2,8 @@ name: verify
 
 on:
   push:
-    branches: [main, ci-verification]
+    branches: [main]
+    tags: ['erdos-619-solution-*']
   pull_request:
   workflow_dispatch:
 
@@ -14,7 +15,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Install elan
         run: |
@@ -37,7 +38,7 @@ jobs:
           git -C .tools/comparator checkout 7a0cae3df7a0200ff330c82420b8d88a51c9cac7
 
       - name: Restore comparator build cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: .tools/comparator/.lake
           key: comparator-7a0cae3-${{ runner.os }}
@@ -46,7 +47,7 @@ jobs:
         working-directory: .tools/comparator
         run: lake build lean4export comparator
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version: 'stable'
 
@@ -67,7 +68,7 @@ jobs:
           grep -q "Your solution is okay!" comparator.log
 
       - name: Upload comparator log
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: comparator-log
           path: comparator.log
