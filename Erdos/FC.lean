@@ -7,9 +7,20 @@ This file is a trusted, verbatim copy of the statement of Erdős Problem 619 fro
 google-deepmind/formal-conjectures repository:
 
 - File: `FormalConjectures/ErdosProblems/619.lean`
-- PR: https://github.com/google-deepmind/formal-conjectures/pull/4255
-- Branch: `erdos-619` of the `nick-kuhn` fork,
-  commit `f1f486fd5826d5da1e6bc0c8cadaec404d0898ac`
+- Merged via [PR #4255](https://github.com/google-deepmind/formal-conjectures/pull/4255),
+  commit `1a9fbeebaa628fec9818216802298871c95b193c` on `main`.
+
+This repository depends on `mathlib` only (matching the convention of the proof repos
+linked from formal-conjectures), so the statement is vendored here rather than imported.
+Its fidelity to the merged source was checked two ways:
+
+- **Textual:** the `minNewEdges` definition below is byte-identical to the merged file,
+  and the right-hand side of `erdos_619_solved_statement` is byte-identical to the
+  right-hand side of the merged `Erdos619.erdos_619`.
+- **Mechanical:** the `phase2-fc-dependency` branch adds a Lake `require` on
+  formal-conjectures at the same commit, imports `FormalConjectures.ErdosProblems.«619»`,
+  and contains a `guard_fc_rhs` example that fails to compile unless this right-hand side
+  is definitionally identical to upstream's.
 
 Two deliberate deviations from the source, both transparent:
 
@@ -19,10 +30,8 @@ Two deliberate deviations from the source, both transparent:
    `Expr.mdata` annotation and otherwise elaborates it unchanged, so `answer(False)`
    elaborates to the proposition `False`. We state the proposition with a literal
    `False` here to avoid vendoring the elaborator; the resulting `Prop` is identical.
-
-Once the formal-conjectures PR is merged, this file should be deleted in favour of a
-Lake dependency on formal-conjectures itself, with the challenge theorem restated via
-`import FormalConjectures.ErdosProblems.«619»`.
+   (The merged upstream statement is still the **open** form `answer(sorry) ↔ ...`; the
+   `answer(False)` solved form is the upstream edit proposed in the follow-up PR.)
 -/
 
 open SimpleGraph

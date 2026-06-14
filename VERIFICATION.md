@@ -115,12 +115,34 @@ Your solution is okay!
 
 ## Notes
 
-The formal-conjectures statement vendored in `Erdos/FC.lean` is pinned to an
-**unmerged** branch of a formal-conjectures fork. If review of the upstream PR
-changes the statement, `Erdos/FC.lean` and the bridge must be updated and this
-verification re-run. Once the PR is merged, replace the vendored copy with a Lake
-dependency on formal-conjectures pinned at the merge commit (this requires moving
-this repository to the formal-conjectures toolchain, currently Lean v4.27.0).
+The formal-conjectures statement vendored in `Erdos/FC.lean` was pinned to an unmerged
+fork branch at the time of this record. It has since been **merged into
+formal-conjectures `main`** as PR #4255, commit
+`1a9fbeebaa628fec9818216802298871c95b193c`; see the update below.
+
+---
+
+# Statement merged upstream; re-pinned to the merge commit (2026-06-14)
+
+PR #4255 merged into google-deepmind/formal-conjectures `main` at commit
+`1a9fbeebaa628fec9818216802298871c95b193c`. The reviewers made no changes to the
+statement, so the vendored `Erdos/FC.lean` is unchanged in substance; its provenance
+header is updated to cite the merge commit.
+
+Fidelity of the vendored statement to the merged source, checked two ways:
+
+- **Textual diff:** `minNewEdges` is byte-identical to the merged file, and the
+  right-hand side of `erdos_619_solved_statement` is byte-identical to the right-hand
+  side of the merged `Erdos619.erdos_619`. (The merged statement is the open form
+  `answer(sorry) ↔ RHS`; we negate that `RHS` via the solved form `False ↔ RHS`.)
+- **Mechanical:** the `phase2-fc-dependency` branch (Route A) takes a Lake dependency on
+  formal-conjectures at the same commit, imports the statement, and proves the negation
+  against FC's own `Erdos619.minNewEdges`, with a `guard_fc_rhs` example that fails to
+  compile unless the right-hand side is definitionally identical to upstream's. That
+  branch builds green (Lean v4.27.0, to match FC's toolchain) with a passing axiom audit.
+
+`main` keeps the mathlib-only Route B (Lean v4.28.0), which is what the
+formal-conjectures `formal_proof` attribute links.
 
 ---
 
