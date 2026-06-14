@@ -134,3 +134,27 @@ GitHub Actions on every push to `main`, every pull request, and every
 - Workflow run: https://github.com/nick-kuhn/erdos-619/actions/runs/27453987653
 - Result: success — both `erdos_619_solution` and `erdos_619_fc_solution` kernel-checked
   by comparator, axiom audit passed (`propext`, `Classical.choice`, `Quot.sound`).
+
+---
+
+# Route A (branch `phase2-fc-dependency`): bound to the imported FC statement
+
+This branch depends on google-deepmind/formal-conjectures (Lake `require` pinned to the
+merge commit `1a9fbee` of PR #4255) and proves the negation against FC's **own**
+`Erdos619.minNewEdges`, imported via `FormalConjectures.ErdosProblems.«619»`. The
+`guard_fc_rhs` example in `Erdos/FC.lean` makes the file fail to compile unless our
+refuted statement is definitionally identical to upstream's — a mechanical statement-match
+check.
+
+Verification status on this branch:
+- `lake build Erdos Challenge Solution`: green (Lean v4.27.0, mathlib v4.27.0).
+- `scripts/AxiomCheck.lean`: green — both submitted theorems depend only on
+  `propext`, `Classical.choice`, `Quot.sound`.
+- Comparator: **not re-run on this branch.** The vendored comparator/lean4export binaries
+  in `.tools/` are built for Lean v4.28.0 and `lean4export` is Lean-version-sensitive;
+  running them against v4.27.0 oleans would require rebuilding the comparator toolchain.
+  The kernel-level statement-match guarantee is instead provided here by `guard_fc_rhs`
+  plus the fact that `Challenge` and `Solution` reference the same imported FC statement.
+
+The idiomatic, mathlib-only Route B on `main` is the version linked from the
+formal-conjectures `formal_proof` attribute.
