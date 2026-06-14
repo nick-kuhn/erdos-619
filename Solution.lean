@@ -857,7 +857,8 @@ lemma sum_indepWitnessCount_eq {N q k : ℕ} (hq : 0 < q) :
       Fintype.card (IndepWitness N k) *
         ((q - 1) ^ (k.choose 2) * q ^ (Fintype.card (Slot N) - k.choose 2)) := by
   rw [sum_indepWitnessCount]
-  simp [card_indepWitnessSlots_choose, card_offDiag_filter_lt_fin, Finset.sum_const, nsmul_eq_mul]
+  simp only [card_indepWitnessSlots_choose]
+  simp [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
 
 lemma card_pattern {N q : ℕ} (hq : 0 < q) (T Z : Finset (Slot N)) (hZ : Z ⊆ T) :
     (Finset.univ.filter fun ω : Sample N q =>
@@ -2811,11 +2812,11 @@ def PendantCoreGraphSum {C P : Type} (H : SimpleGraph C) (root : P → C) :
     · simpa using h
     · simpa using h
     · exact False.elim h
-  loopless := ⟨by
+  loopless := by
     intro x
     cases x with
     | inl a => exact H.irrefl
-    | inr p => exact id⟩
+    | inr p => exact id
 
 @[simp] lemma pendantCoreGraphSum_adj_core_core {C P : Type} {H : SimpleGraph C} {root : P → C}
     {a b : C} :
@@ -2859,9 +2860,9 @@ def PendantPairGraph {C P : Type} (K : SimpleGraph (C ⊕ P)) : SimpleGraph P wh
   symm := by
     intro p q h
     exact h.symm
-  loopless := ⟨by
+  loopless := by
     intro p
-    exact K.irrefl⟩
+    exact K.irrefl
 
 @[simp] lemma pendantPairGraph_adj {C P : Type} {K : SimpleGraph (C ⊕ P)} {p q : P} :
     (PendantPairGraph K).Adj p q ↔ K.Adj (Sum.inr p) (Sum.inr q) := Iff.rfl
@@ -4350,7 +4351,7 @@ def PendantHubSupergraphSum {C P : Type} (H : SimpleGraph C) (root : P → C) (h
     · rcases hnew with ⟨hxhub, hyp⟩ | ⟨hxp, hyhub⟩
       · exact Or.inr ⟨p, hp, Or.inr ⟨hyp, hxhub⟩⟩
       · exact Or.inr ⟨p, hp, Or.inl ⟨hyhub, hxp⟩⟩
-  loopless := ⟨by
+  loopless := by
     intro x h
     rcases h with hbase | ⟨p, hp, hnew⟩
     · exact (PendantCoreGraphSum H root).irrefl hbase
@@ -4358,7 +4359,7 @@ def PendantHubSupergraphSum {C P : Type} (H : SimpleGraph C) (root : P → C) (h
       · have : p = hub := by simpa using h₂.symm.trans h₁
         exact hp (by rw [this])
       · have : p = hub := by simpa using h₁.symm.trans h₂
-        exact hp (by rw [this])⟩
+        exact hp (by rw [this])
 
 lemma pendantCoreGraphSum_le_hubSupergraph {C P : Type} (H : SimpleGraph C) (root : P → C)
     (hub : P) :
