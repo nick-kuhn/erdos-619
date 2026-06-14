@@ -14,6 +14,14 @@ name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.27.0"
 
+# Pinned to the merge commit of PR #4255 (adds ErdosProblems/619).
+# Provides the canonical `Erdos619.minNewEdges` and `Erdos619.erdos_619`
+# statement that `Solution.lean` proves the negation of.
+[[require]]
+name = "formal_conjectures"
+git = "https://github.com/google-deepmind/formal-conjectures"
+rev = "1a9fbee"
+
 [[lean_lib]]
 name = "Erdos"
 
